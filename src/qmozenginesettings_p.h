@@ -55,6 +55,9 @@ public:
     bool doNotTrack() const;
     void setDoNotTrack(bool doNotTrack);
 
+    bool locationRequestsEnabled() const;
+    void setLocationRequestsEnabled(bool enabled);
+
     void enableProgressivePainting(bool enabled);
     void enableLowPrecisionBuffers(bool enabled);
 
@@ -80,6 +83,7 @@ Q_SIGNALS:
     void initialized();
     void pixelRatioChanged();
     void doNotTrackChanged();
+    void locationRequestsEnabledChanged();
 
 private:
     void setDefaultPreferences();
@@ -93,6 +97,7 @@ private:
     qreal mPixelRatio;
     QString mDownloadDir;
     bool mDoNotTrack;
+    bool mLocationRequestsEnabled;
 };
 
 #endif // QMOZENGINE_SETTINGS_P_H

@@ -28,6 +28,7 @@ class QMozEngineSettings : public QObject {
     Q_PROPERTY(QString downloadDir READ downloadDir WRITE setDownloadDir NOTIFY downloadDirChanged)
     Q_PROPERTY(qreal pixelRatio READ pixelRatio WRITE setPixelRatio NOTIFY pixelRatioChanged)
     Q_PROPERTY(bool doNotTrack READ doNotTrack WRITE setDoNotTrack NOTIFY doNotTrackChanged)
+    Q_PROPERTY(bool locationRequestsEnabled READ locationRequestsEnabled WRITE setLocationRequestsEnabled NOTIFY locationRequestsEnabledChanged)
 
 public:
     // C++ API
@@ -75,6 +76,9 @@ public:
     bool doNotTrack() const;
     void setDoNotTrack(bool doNotTrack);
 
+    bool locationRequestsEnabled() const;
+    void setLocationRequestsEnabled(bool enabled);
+
     void enableProgressivePainting(bool enabled);
     void enableLowPrecisionBuffers(bool enabled);
 
@@ -91,6 +95,7 @@ Q_SIGNALS:
     void initialized();
     void pixelRatioChanged();
     void doNotTrackChanged();
+    void locationRequestsEnabledChanged();
 
 private:
     QMozEngineSettingsPrivate *d_ptr;

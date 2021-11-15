@@ -33,6 +33,7 @@ const auto PREF_USE_DOWNLOAD_DIR = QStringLiteral("browser.download.useDownloadD
 const auto PREF_DOWNLOAD_DIR = QStringLiteral("browser.download.dir");
 const auto PREF_PIXEL_RATIO = QStringLiteral("layout.css.devPixelsPerPx");
 const auto PREF_DO_NOT_TRACK = QStringLiteral("privacy.donottrackheader.enabled");
+const auto PREF_LOCATION_REQUESTS_ENABLED = QStringLiteral("privacy.locationrequests.enabled");
 
 const QStringList PREF_CHANGED_OBSERVERS = {
     PREF_PERMISSIONS_DEFAULT_IMAGE,
@@ -42,7 +43,8 @@ const QStringList PREF_CHANGED_OBSERVERS = {
     PREF_USE_DOWNLOAD_DIR,
     PREF_DOWNLOAD_DIR,
     PREF_PIXEL_RATIO,
-    PREF_DO_NOT_TRACK
+    PREF_DO_NOT_TRACK,
+    PREF_LOCATION_REQUESTS_ENABLED
 };
 }
 
@@ -61,6 +63,7 @@ QMozEngineSettingsPrivate::QMozEngineSettingsPrivate(QObject *parent)
     , mAutoLoadImages(true)
     , mPixelRatio(1.0)
     , mDoNotTrack(false)
+    , mLocationRequestsEnabled(true)
 {
 
     QMozContext *context = QMozContext::instance();
@@ -198,6 +201,20 @@ void QMozEngineSettingsPrivate::setDoNotTrack(bool doNotTrack)
     }
 }
 
+bool QMozEngineSettingsPrivate::locationRequestsEnabled() const
+{
+    return mLocationRequestsEnabled;
+}
+
+void QMozEngineSettingsPrivate::setLocationRequestsEnabled(bool enabled)
+{
+    if (mLocationRequestsEnabled != enabled) {
+        setPreference(PREF_LOCATION_REQUESTS_ENABLED, QVariant::fromValue<bool>(enabled));
+        mLocationRequestsEnabled = enabled;
+        Q_EMIT locationRequestsEnabledChanged();
+    }
+}
+
 void QMozEngineSettingsPrivate::enableProgressivePainting(bool enabled)
 {
     setPreference(QStringLiteral("layers.progressive-paint"), QVariant::fromValue<bool>(enabled));
@@ -311,6 +328,12 @@ void QMozEngineSettingsPrivate::onObserve(const QString &topic, const QVariant &
                     mDoNotTrack = doNotTrack;
                     Q_EMIT doNotTrackChanged();
                 }
+            } else if (changedPreference == PREF_LOCATION_REQUESTS_ENABLED) {
+                bool locationRequests = preferenceValue.toBool();
+                if (mLocationRequestsEnabled != locationRequests) {
+                  mLocationRequestsEnabled = locationRequests;
+                  Q_EMIT locationRequestsEnabledChanged();
+                }
             }
         }
     }
@@ -383,6 +406,7 @@ QMozEngineSettings::QMozEngineSettings(QObject *parent)
     connect(d, &QMozEngineSettingsPrivate::downloadDirChanged, this, &QMozEngineSettings::downloadDirChanged);
     connect(d, &QMozEngineSettingsPrivate::pixelRatioChanged, this, &QMozEngineSettings::pixelRatioChanged);
     connect(d, &QMozEngineSettingsPrivate::doNotTrackChanged, this, &QMozEngineSettings::doNotTrackChanged);
+    connect(d, &QMozEngineSettingsPrivate::locationRequestsEnabledChanged, this, &QMozEngineSettings::locationRequestsEnabledChanged);
 }
 
 QMozEngineSettings::~QMozEngineSettings()
@@ -496,6 +520,18 @@ void QMozEngineSettings::setDoNotTrack(bool doNotTrack)
 {
     Q_D(QMozEngineSettings);
     return d->setDoNotTrack(doNotTrack);
+}
+
+bool QMozEngineSettings::locationRequestsEnabled() const
+{
+    Q_D(const QMozEngineSettings);
+    return d->locationRequestsEnabled();
+}
+
+void QMozEngineSettings::setLocationRequestsEnabled(bool enabled)
+{
+    Q_D(QMozEngineSettings);
+    return d->setLocationRequestsEnabled(enabled);
 }
 
 void QMozEngineSettings::enableProgressivePainting(bool enabled)
